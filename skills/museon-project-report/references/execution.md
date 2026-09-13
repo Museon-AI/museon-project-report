@@ -12,6 +12,8 @@ python3 scripts/report.py due --config CONFIG --snapshot SNAPSHOT --state STATE 
 python3 scripts/report.py deliver --config CONFIG --snapshot SNAPSHOT --state STATE --card CARD --triggers TRIGGERS --send
 ```
 
+Pin the selected non-secret Feishu profile in `destination.profile`. The helper uses that explicit profile for send and readback. Before activation, verify that profile and credential access in the scheduler runtime; never silently fall back to a default app.
+
 Use separate STATE files per project and destination. `collect` reads all pages from the configured history start with no future upper bound, filters workspace+campaign, and fetches post metadata and latest performance through CLI. It fails on inconsistent pagination rather than issuing a false complete report. Full data is saved locally; do not paste raw payloads to users. Validate the resulting scope and coverage before rendering. `collect` has no publication writes.
 
 `render_card.py` is pure/offline. It uses the agreed V5 design and does not send. Feishu table components must remain at the body root; native collapsible panels need no callback backend. Preview the JSON and, on a user's authorized test, send/read back the actual card. If a large project exceeds the Feishu size limit, stop and split into numbered continuation cards while retaining every registered future row; never silently omit rows. Keep the two category layouts consistent.

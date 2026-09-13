@@ -89,6 +89,13 @@ def collect(c, project):
             'collection':{'history_from':start.isoformat(), 'future_end':None, 'workspace_rows':len(seen), 'pages':page}}
 
 
+def lark_argv(c):
+    profile = c['destination'].get('profile')
+    if profile is not None and (not isinstance(profile, str) or not profile.strip()):
+        raise ValueError('Feishu profile must be a non-empty string')
+    return ['lark-cli'] + (['--profile', profile] if profile else [])
+
+
 def destination_key(c):
     return hashlib.sha256(json.dumps(c['destination'],sort_keys=True).encode()).hexdigest()[:12]
 
@@ -146,9 +153,9 @@ def deliver(c, snap, card, state_path, triggers):
         if not pending.get('message_id'):
             if datetime.now(timezone.utc)-instant(pending['started_at']) > timedelta(hours=1):
                 raise RuntimeError('Uncertain send older than one hour; reconcile chat before retry')
-            argv = ['lark-cli','im','+messages-send','--as',dest['as'],'--user-id' if dest['type']=='user' else '--chat-id',dest['id'],'--msg-type','interactive','--content',json.dumps(pending['card'],ensure_ascii=False,separators=(',',':')),'--idempotency-key',pending['idempotency_key'],'--json']
+            argv = lark_argv(c) + ['im','+messages-send','--as',dest['as'],'--user-id' if dest['type']=='user' else '--chat-id',dest['id'],'--msg-type','interactive','--content',json.dumps(pending['card'],ensure_ascii=False,separators=(',',':')),'--idempotency-key',pending['idempotency_key'],'--json']
             receipt=call(argv)['data']; pending['message_id']=receipt['message_id']; pending['chat_id']=receipt.get('chat_id'); write(state_path,state)
-        result=call(['lark-cli','im','+messages-mget','--as',dest['as'],'--message-ids',pending['message_id'],'--no-reactions','--json'])['data']['messages']
+        result=call(lark_argv(c) + ['im','+messages-mget','--as',dest['as'],'--message-ids',pending['message_id'],'--no-reactions','--json'])['data']['messages']
         if len(result)!=1 or result[0].get('message_id') != pending['message_id'] or (pending.get('chat_id') and result[0].get('chat_id') != pending['chat_id']) or (dest['type']=='chat' and result[0].get('chat_id') != dest['id']) or result[0].get('deleted') or result[0].get('msg_type')!='interactive':
             raise RuntimeError('Message readback failed; retain receipt and do not resend')
         if pending['card']['header']['title']['content'] not in result[0].get('content',''):

@@ -6,7 +6,7 @@ A Codex skill for project publishing reports through Museon CLI and Feishu CLI. 
 
 Download [museon-project-report.zip](https://github.com/Museon-AI/museon-project-report/releases/latest/download/museon-project-report.zip), drag it into Codex, and say:
 
-> 安装这个 Skill，然后引导我选择客户项目、日报时间和飞书接收人。先发测试卡片，我确认后再启用定时。
+> 安装这个 Skill，按内置流程检查并补齐 Museon 和飞书 CLI，完成登录授权，再引导我选择客户、时间和接收人。先发测试卡片，我确认后再启用定时。
 
 Or give Codex the [skill directory](https://github.com/Museon-AI/museon-project-report/tree/main/skills/museon-project-report) and ask it to install using HTTPS download. No Git executable or GitHub account is needed to download the public package.
 
