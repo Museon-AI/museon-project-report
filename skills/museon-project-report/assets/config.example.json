@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "cli": ["museoncli"],
+  "projects": [],
+  "history_days": 7,
+  "concurrency": 4,
+  "schedule": {
+    "poll_minutes": 5,
+    "checkpoint_minutes": [30, 120, 360],
+    "daily_times": [],
+    "interval_minutes": null,
+    "catchup_minutes": 180
+  },
+  "destination": null
+}

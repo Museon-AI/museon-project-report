@@ -1,0 +1,4 @@
+interface:
+  display_name: "项目发布快报"
+  short_description: "配置项目发布快报，分开查看推广与养号排期、均播、热门帖子，并同步飞书"
+  default_prompt: "使用 $museon-project-report 配置我的项目快报，先选择项目和同步时间，再发送测试卡片。"
