@@ -1,22 +1,35 @@
 ---
 name: museon-project-report
-description: Configure and deliver HireAICreator project publishing reports through Museon CLI and Feishu CLI, with separate promotion and warmup schedules, average views, top posts, and post-publication checkpoints. Use for onboarding, previewing, scheduling, or adjusting these project reports.
+description: Configure customer reports by first choosing AI projects from HireAICreator or UGC projects from Museon, then selecting customers within that source. Use for onboarding, previewing, delivering, or adjusting project reports through Museon and Feishu CLI; bundled scheduling helpers support AI reports.
 ---
 
 # Museon project reports
 
-Produce one project report per card, using the approved V5 layout. Use CLI commands for collection and messaging; never substitute direct production database queries. This skill reports existing content; it does not publish, reschedule, or repair content.
+Use CLI commands for collection and messaging; never substitute direct production database queries. This skill reports existing content; it does not publish, reschedule, or repair content.
+
+## Select the business type before the customer
+
+After authorization, ask “你关心的是 AI 项目，还是素人项目？” before discovering customer candidates. Then list actual accessible customers/projects from the chosen source and ask the user to select. Reuse an explicit answer already given; never infer it from a brand name, granted workspace, or the first search result. Eazo or OKA can have both project types under the same account.
+
+- `project_type=ai`, `source=hireaicreator`: discover HireAICreator projects through its current CLI schema. Use the AI execution and V5 layout below. `campaign-monitor +list` is not the AI customer directory; shared post-metric commands may only enrich confirmed HireAICreator publication IDs.
+- `project_type=ugc`, `source=museon`: discover Museon campaign-monitor projects. Follow [ugc-reporting.md](references/ugc-reporting.md). Do not run the bundled AI collector, renderer or checkpoint scheduler on these IDs.
+
+Show customer name, type, source, organization/workspace and actual project name together when asking for selection. Save that explicit choice and canonical workspace/project IDs. A project UUID's shape or a matching customer name cannot identify its source. If the source has no accessible results, check CLI capability and authorization; do not switch platforms. For “both”, confirm customers separately in each type and retain separate project keys and state.
+
+Existing configurations without type/source require one-time scope confirmation before collection or delivery. Verify the original IDs against the chosen source, preserving destination, schedules and delivery history; do not silently mark old IDs as AI. The Python helpers reject missing or mismatched scope before accessing project data.
 
 ## Choose the mode
 
 - First use or missing configuration: follow [onboarding.md](references/onboarding.md). Discover real accessible projects and recipients; do not populate another user's IDs from an example.
-- Preview or one-time report: collect, render, review, and send only to the user's authorized destination. Follow [execution.md](references/execution.md).
-- Recurring execution: follow [execution.md](references/execution.md), including trigger planning, readback, and persistent delivery state.
+- Preview or one-time report: collect, render, review, and send only to the user's authorized destination. For AI follow [execution.md](references/execution.md); for UGC follow [ugc-reporting.md](references/ugc-reporting.md).
+- Recurring execution: for AI follow [execution.md](references/execution.md), including trigger planning, readback, and persistent delivery state. For UGC follow [ugc-reporting.md](references/ugc-reporting.md) and verify a UGC-specific execution path before scheduling.
 - Change configuration: preserve unrelated settings and delivery history; apply the requested project/time/channel/layout change, preview it, and update the existing scheduler instead of creating duplicates.
 
 Python 3.11+ and `museoncli` are required; Feishu delivery additionally requires `lark-cli`. The command contract is verified against Museon CLI 0.6.0. Inspect `version`, `schema`, and relevant command help when using a different version. Do not silently downgrade or upgrade a user's installation. Credentials belong in CLI authentication storage, never in this skill, config, outputs, or the distributable.
 
 ## Report contract
+
+This contract and the bundled Python helpers apply to AI/HireAICreator projects. For UGC fields and limitations read [ugc-reporting.md](references/ugc-reporting.md). For practical examples read [best-practices.md](references/best-practices.md).
 
 The pure renderer is `scripts/render_card.py`. Read its help for the exact invocation; input is the snapshot produced by `scripts/report.py collect`.
 
@@ -31,7 +44,7 @@ The pure renderer is `scripts/render_card.py`. Read its help for the exact invoc
 
 ## Persistent configuration
 
-Copy `assets/config.example.json` outside the installed skill, e.g. `~/.config/museon-project-report/config.json`. It is intentionally incomplete until onboarding selects projects and destination. Each project contains `key`, `name`, `workspace_id`, `campaign_id`, and IANA `timezone`.
+Copy `assets/config.example.json` outside the installed skill, e.g. `~/.config/museon-project-report/config.json`. It is intentionally incomplete until onboarding selects a business type, customers and destination. Each project contains `key`, `name`, `project_type` (`ai` or `ugc`), `source` (`hireaicreator` or `museon` respectively), `workspace_id`, `campaign_id`, and IANA `timezone`. Record organization context when available. `campaign_id` belongs to the selected source; never reuse a same-name project's ID from the other platform. Use separate keys for the same customer's AI and UGC projects.
 
 Keep snapshots, receipts, trigger files and per-project delivery state outside the package, in a user-owned state directory. Store no access tokens. The scripts never install a scheduler or turn monitoring on by themselves. Packaging or installing this skill is not activation of recurring sending.
 

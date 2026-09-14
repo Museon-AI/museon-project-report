@@ -1,4 +1,4 @@
 interface:
   display_name: "项目发布快报"
-  short_description: "配置项目发布快报，分开查看推广与养号排期、均播、热门帖子，并同步飞书"
-  default_prompt: "使用 $museon-project-report 配置我的项目快报，先选择项目和同步时间，再发送测试卡片。"
+  short_description: "先选 AI 或素人项目，再选客户，从正确平台获取数据并同步飞书"
+  default_prompt: "使用 $museon-project-report 配置我的客户日报。授权后先问我看 AI 项目还是素人项目，再列出该类型下可访问的客户让我选择，之后配置时间和接收人并发测试。"
