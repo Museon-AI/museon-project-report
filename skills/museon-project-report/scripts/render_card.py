@@ -58,6 +58,8 @@ def kpis(values):
 
 def render(snapshot, title_cap=76, detail=True):
     project = snapshot["project"]
+    if project.get('project_type') != 'ai' or project.get('source') != 'hireaicreator':
+        raise ValueError('AI renderer requires an explicitly confirmed ai/hireaicreator project. Reconfirm legacy scope or use the UGC reporting route.')
     tz = ZoneInfo(project["timezone"])
     now = instant(snapshot["observed_at"])
     if now is None:

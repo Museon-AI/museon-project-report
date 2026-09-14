@@ -45,6 +45,7 @@ def config(path):
     assert isinstance(c['cli'], list) and c['cli'] and all(isinstance(x, str) for x in c['cli'])
     assert c['projects'] and len({p['key'] for p in c['projects']}) == len(c['projects'])
     for p in c['projects']:
+        validate_project_scope(p)
         for k in ('key', 'name', 'workspace_id', 'campaign_id', 'timezone'):
             assert p.get(k), f'Missing {k}'
         ZoneInfo(p['timezone'])
@@ -59,7 +60,24 @@ def config(path):
     return c
 
 
+def validate_project_scope(project):
+    """Require an explicit business type; names and UUID shapes cannot prove it."""
+    sources = {'ai': 'hireaicreator', 'ugc': 'museon'}
+    project_type = project.get('project_type')
+    if project_type not in sources:
+        raise ValueError('Project type is unconfirmed. Ask AI or UGC first, then let the user select a client from that source; migrate legacy config without guessing.')
+    if project.get('source') != sources[project_type]:
+        raise ValueError('Project type/source mismatch: ai requires hireaicreator; ugc requires museon.')
+
+
+def require_ai_project(project):
+    validate_project_scope(project)
+    if project['project_type'] != 'ai':
+        raise ValueError('This helper only supports AI/HireAICreator reports. For UGC use references/ugc-reporting.md; do not pass Museon campaign IDs into the AI pipeline.')
+
+
 def collect(c, project):
+    require_ai_project(project)
     videos = []; seen = set(); page = 1; expected = None
     start = (datetime.now(ZoneInfo(project['timezone'])) - timedelta(days=c['history_days'])).replace(hour=0, minute=0, second=0, microsecond=0)
     while True:
@@ -101,6 +119,7 @@ def destination_key(c):
 
 
 def due(c, snap, state, now):
+    require_ai_project(snap['project'])
     p = snap['project']; z = ZoneInfo(p['timezone']); local = now.astimezone(z)
     schedule = c['schedule']; candidates = []
     # All outstanding thresholds within the catch-up window are merged into one project card.
@@ -127,6 +146,7 @@ def due(c, snap, state, now):
 
 
 def deliver(c, snap, card, state_path, triggers):
+    require_ai_project(snap['project'])
     if not c.get('enabled'): raise ValueError('Configuration is paused; enable only after onboarding test')
     dest = c['destination']; state_path = Path(state_path)
     project_key = snap['project']['key']

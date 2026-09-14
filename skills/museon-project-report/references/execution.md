@@ -1,5 +1,7 @@
 # Execution and scheduling
 
+These helpers execute only confirmed `project_type=ai`, `source=hireaicreator` projects. Validate business type before customer discovery; see onboarding. UGC uses [ugc-reporting.md](ugc-reporting.md). A generic config validation success does not mean the AI helpers support UGC. Missing legacy scope or a type/source mismatch must be resolved before running or sending; never change IDs by fuzzy name matching.
+
 ## Commands
 
 Run Python helpers from the installed skill path, with absolute paths for user-owned configuration and output. No shell interpolation of secrets or remote content.
